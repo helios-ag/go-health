@@ -1,0 +1,125 @@
+# See: https://taskfile.dev/api/
+
+version: '3'
+
+vars:
+  OUTPUT_DIR: build
+  TMP_DIR: .tmp
+  RELEASE_VER:
+    sh: git rev-parse --short HEAD
+  NAME: default
+  COVERMODE: atomic
+  TEST_PACKAGES:
+    sh: go list ./... | grep -v vendor | grep -v fakes
+
+# Default task shows help
+tasks:
+  default:
+    desc: Show list of tasks
+    cmds:
+      - task -l
+
+  help:
+    desc: Show list of tasks (alias for default)
+    cmds:
+      - task -l
+
+  installdeps:
+    desc: Install development dependencies
+    cmds:
+      - go get -t -v ./...
+
+  generate:
+    desc: Run go generate for all non-vendor packages
+    cmds:
+      - go list ./... | xargs go generate
+
+  test:
+    desc: Run both unit and integration tests
+    deps: [installdeps]
+    cmds:
+      - task: test:integration
+    aliases: ["test"]
+
+  testv:
+    desc: Run both unit and integration tests (verbose)
+    deps: [installdeps]
+    cmds:
+      - task: testv:integration
+    aliases: ["testv"]
+
+  test:unit:
+    desc: Run unit tests with coverage
+    cmds:
+      - go test -cover {{.TEST_PACKAGES}}
+    aliases: ["test/unit"]
+
+  testv:unit:
+    desc: Run unit tests with coverage (verbose)
+    cmds:
+      - go test -v -cover {{.TEST_PACKAGES}}
+    aliases: ["testv/unit"]
+
+  test:integration:
+    desc: Run integration tests with coverage
+    cmds:
+      - go test -cover -tags integration {{.TEST_PACKAGES}}
+    aliases: ["test/integration"]
+
+  testv:integration:
+    desc: Run integration tests with coverage (verbose)
+    cmds:
+      - go test -v -cover -tags integration {{.TEST_PACKAGES}}
+    aliases: ["testv/integration"]
+
+  test:race:
+    desc: Run unit tests with race detector enabled
+    cmds:
+      - go test -race -cover {{.TEST_PACKAGES}}
+    aliases: ["test/race"]
+
+  test:cover:
+    desc: Run all tests and open HTML coverage report
+    cmds:
+      - |
+        echo 'mode: {{.COVERMODE}}' > .coverage
+        for PKG in $( {{.TEST_PACKAGES}} ); do
+          go test -coverprofile=.coverage.tmp -tags "integration" "$$PKG"
+          if [ -f .coverage.tmp ]; then
+            grep -v -E '^mode:' .coverage.tmp >> .coverage
+            rm -f .coverage.tmp
+          fi
+        done
+        go tool cover -html=.coverage
+        rm -f .coverage .coverage.tmp
+    aliases: ["test/cover"]
+
+  test:cc:
+    desc: Run tests and build coverage report for Code Climate (c.out)
+    cmds:
+      - |
+        echo 'mode: {{.COVERMODE}}' > c.out
+        for PKG in $( {{.TEST_PACKAGES}} ); do
+          go test -covermode={{.COVERMODE}} -coverprofile=.coverage.tmp "$$PKG"
+          if [ -f .coverage.tmp ]; then
+            grep -v -E '^mode:' .coverage.tmp >> c.out
+            rm -f .coverage.tmp
+          fi
+        done
+        rm -f .coverage.tmp
+    aliases: ["test/cc"]
+
+  test:codecov:
+    desc: Run tests and create coverage.txt for Codecov
+    cmds:
+      - |
+        rm -f coverage.txt
+        for PKG in $( {{.TEST_PACKAGES}} ); do
+          go test -covermode={{.COVERMODE}} -coverprofile=profile.out "$$PKG"
+          if [ -f profile.out ]; then
+            cat profile.out >> coverage.txt
+            rm -f profile.out
+          fi
+        done
+        rm -f profile.out
+    aliases: ["test/codecov"]
