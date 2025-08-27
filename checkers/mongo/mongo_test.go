@@ -1,24 +1,33 @@
-//go:build integration
-
 package mongochk
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
 
 	. "github.com/onsi/gomega"
-	"github.com/zaffka/mongodb-boltdb-mock/db"
+
+	"github.com/orlangure/gnomock"
+	"github.com/orlangure/gnomock/preset/mongo"
+	mongodb "go.mongodb.org/mongo-driver/mongo"
+	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func TestNewMongo(t *testing.T) {
 	RegisterTestingT(t)
 
 	t.Run("Happy path", func(t *testing.T) {
-		mongo := db.New(&db.Mock{})
-		url := "localhost:27017"
-		err := mongo.Connect(url)
-		defer mongo.Close()
+		preset := mongo.Preset()
+		container, err := gnomock.Start(preset)
+		defer gnomock.Stop(container)
+		addr := container.DefaultAddress()
+		uri := fmt.Sprintf("mongodb://%s:%s@%s", "gnomock", "gnomick", addr)
+		clientOptions := mongooptions.Client().ApplyURI(uri)
+
+		client, err := mongodb.Connect(context.Background(), clientOptions)
+		defer client.Disconnect(context.Background())
+
 		Expect(err).ToNot(HaveOccurred())
 	})
 
@@ -106,7 +115,7 @@ func TestMongoStatus(t *testing.T) {
 		cfg := &MongoConfig{
 			Ping: true,
 		}
-		checker, _, err := setupMongo(cfg)
+		checker, err := setupMongo(cfg)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -122,7 +131,7 @@ func TestMongoStatus(t *testing.T) {
 		cfg := &MongoConfig{
 			Collection: "go-check",
 		}
-		checker, _, err := setupMongo(cfg)
+		checker, err := setupMongo(cfg)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -135,23 +144,26 @@ func TestMongoStatus(t *testing.T) {
 
 }
 
-func setupMongo(cfg *MongoConfig) (*Mongo, db.Handler, error) {
-	server := db.New(&db.Mongo{})
-	url := "mongodb://localhost:27017"
-	err := server.Connect(url)
+func setupMongo(cfg *MongoConfig) (*Mongo, error) {
+	preset := mongo.Preset()
+	container, err := gnomock.Start(preset)
+	addr := container.DefaultAddress()
+	uri := fmt.Sprintf("mongodb://%s", addr)
+	clientOptions := mongooptions.Client().ApplyURI(uri)
 
+	mongodb.Connect(context.Background(), clientOptions)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Unable to setup mongo: %v", err)
+		return nil, fmt.Errorf("unable to setup mongo: %v", err)
 	}
 
 	cfg.Auth = &MongoAuthConfig{
-		Url: url,
+		Url: uri,
 	}
 
 	checker, err := NewMongo(cfg)
 	if err != nil {
-		return nil, nil, fmt.Errorf("Unable to setup checker: %v", err)
+		return nil, fmt.Errorf("unable to setup checker: %v", err)
 	}
 
-	return checker, server, nil
+	return checker, nil
 }
