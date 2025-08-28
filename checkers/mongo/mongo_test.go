@@ -49,7 +49,6 @@ func TestNewMongo(t *testing.T) {
 		}
 
 		mongoInstance, err := NewMongo(cfg)
-		defer mongoInstance.Close()
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(ContainSubstring("no reachable servers"))
 		Expect(mongoInstance).To(BeNil())
