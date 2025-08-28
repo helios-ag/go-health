@@ -8,9 +8,9 @@ import (
 
 	. "github.com/onsi/gomega"
 
-	"github.com/InVisionApp/go-health/v2/fakes"
 	"github.com/InVisionApp/go-logger"
 	"github.com/InVisionApp/go-logger/shims/testlog"
+	"github.com/helios-ag/go-health/v2/fakes"
 )
 
 var (

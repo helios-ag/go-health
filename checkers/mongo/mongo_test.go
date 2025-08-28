@@ -10,8 +10,8 @@ import (
 
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/mongo"
-	mongodb "go.mongodb.org/mongo-driver/mongo"
-	mongooptions "go.mongodb.org/mongo-driver/mongo/options"
+	mongodb "go.mongodb.org/mongo-driver/v2/mongo"
+	mongooptions "go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 func TestNewMongo(t *testing.T) {
@@ -25,7 +25,7 @@ func TestNewMongo(t *testing.T) {
 		uri := fmt.Sprintf("mongodb://%s:%s@%s", "gnomock", "gnomick", addr)
 		clientOptions := mongooptions.Client().ApplyURI(uri)
 
-		client, err := mongodb.Connect(context.Background(), clientOptions)
+		client, err := mongodb.Connect(clientOptions)
 		defer client.Disconnect(context.Background())
 
 		Expect(err).ToNot(HaveOccurred())
@@ -96,7 +96,7 @@ func TestValidateMongoConfig(t *testing.T) {
 	t.Run("Should error if url has wrong format", func(t *testing.T) {
 		cfg := &MongoConfig{
 			Auth: &MongoAuthConfig{
-				Url: "localhost:40001?foo=1&bar=2",
+				Url: "localhost\\:40001//?foo=1&bar=2",
 			},
 		}
 
@@ -152,7 +152,7 @@ func setupMongo(cfg *MongoConfig) (*Mongo, error) {
 	uri := fmt.Sprintf("mongodb://%s", addr)
 	clientOptions := mongooptions.Client().ApplyURI(uri)
 
-	mongodb.Connect(context.Background(), clientOptions)
+	mongodb.Connect(clientOptions)
 	if err != nil {
 		return nil, fmt.Errorf("unable to setup mongo: %v", err)
 	}

@@ -3,10 +3,10 @@ package mongochk
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
-	"github.com/globalsign/mgo"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -147,7 +147,7 @@ func validateMongoConfig(cfg *MongoConfig) error {
 		return fmt.Errorf("url string must be set in auth config")
 	}
 
-	if _, err := mgo.ParseURL(cfg.Auth.Url); err != nil {
+	if _, err := url.Parse(cfg.Auth.Url); err != nil {
 		return fmt.Errorf("unable to parse URL: %v", err)
 	}
 
