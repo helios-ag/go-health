@@ -96,7 +96,7 @@ func TestValidateMongoConfig(t *testing.T) {
 	t.Run("Should error if url has wrong format", func(t *testing.T) {
 		cfg := &MongoConfig{
 			Auth: &MongoAuthConfig{
-				Url: "localhost:40001?foo=1&bar=2",
+				Url: "localhost:40001//?foo=1&bar=2",
 			},
 		}
 
