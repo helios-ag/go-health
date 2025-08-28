@@ -1,19 +1,25 @@
 package mongochk
 
 import (
+	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/globalsign/mgo"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
 )
 
 const (
-	DefaultDialTimeout = 10 * time.Second
+	DefaultDialTimeout = 1 * time.Second
 )
 
 // MongoConfig is used for configuring the go-mongo check.
 //
-// "Auth" is _required_; redis connection/auth config.
+// "Auth" is _required_; mongo connection/auth config.
 //
 // "Collection" is optional; method checks if collection exist
 //
@@ -22,7 +28,7 @@ const (
 // "DialTimeout" is optional; default @ 10s; determines the max time we'll wait to reach a server.
 //
 // Note: At least _one_ check method must be set/enabled; you can also enable
-// _all_ of the check methods (ie. perform a ping, or check particular collection for existense).
+// _all_ of the check methods (i.e. perform a ping, or check particular collection for existence).
 type MongoConfig struct {
 	Auth        *MongoAuthConfig
 	Collection  string
@@ -31,17 +37,17 @@ type MongoConfig struct {
 	DialTimeout time.Duration
 }
 
-// MongoAuthConfig, used to setup connection params for go-mongo check
+// MongoAuthConfig used to set up connection params for go-mongo check
 // Url format is localhost:27017 or mongo://localhost:27017
-// Credential has format described at https://godoc.org/github.com/globalsign/mgo#Credential
+// https://www.mongodb.com/docs/manual/core/authentication-mechanisms/.
 type MongoAuthConfig struct {
 	Url         string
-	Credentials mgo.Credential
+	Credentials options.Credential
 }
 
 type Mongo struct {
-	Config  *MongoConfig
-	Session *mgo.Session
+	Config *MongoConfig
+	Client *mongo.Client
 }
 
 func NewMongo(cfg *MongoConfig) (*Mongo, error) {
@@ -50,39 +56,73 @@ func NewMongo(cfg *MongoConfig) (*Mongo, error) {
 		return nil, fmt.Errorf("unable to validate mongodb config: %v", err)
 	}
 
-	session, err := mgo.DialWithTimeout(cfg.Auth.Url, cfg.DialTimeout)
+	uri := normalizeMongoURI(cfg.Auth.Url)
+
+	clientOpts := options.Client().ApplyURI(uri)
+
+	dt := cfg.DialTimeout
+
+	clientOpts.
+		SetConnectTimeout(dt).
+		SetServerSelectionTimeout(dt)
+
+	if cfg.Auth.Credentials.Username != "" || cfg.Auth.Credentials.Password != "" || cfg.Auth.Credentials.AuthSource != "" {
+		clientOpts.SetAuth(cfg.Auth.Credentials)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), dt)
+	defer cancel()
+	client, err := mongo.Connect(clientOpts)
+
 	if err != nil {
 		return nil, err
 	}
 
-	if err := session.Ping(); err != nil {
-		return nil, fmt.Errorf("unable to establish initial connection to mongodb: %v", err)
+	// Initial ping to ensure connectivity
+	if err := client.Ping(ctx, readpref.Primary()); err != nil {
+		_ = client.Disconnect(context.Background())
+		return nil, fmt.Errorf("no reachable servers: %w", err)
 	}
-
 	return &Mongo{
-		Config:  cfg,
-		Session: session,
+		Config: cfg,
+		Client: client,
 	}, nil
 }
 
 func (m *Mongo) Status() (interface{}, error) {
+	dt := m.Config.DialTimeout
+	if dt <= 0 {
+		dt = DefaultDialTimeout
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), dt)
+	defer cancel()
+
 	if m.Config.Ping {
-		if err := m.Session.Ping(); err != nil {
-			return nil, fmt.Errorf("ping failed: %v", err)
+		if err := m.Client.Ping(ctx, readpref.Primary()); err != nil {
+			return nil, fmt.Errorf("ping failed: %w", err)
 		}
 	}
 
 	if m.Config.Collection != "" {
-		collections, err := m.Session.DB(m.Config.DB).CollectionNames()
-		if err != nil {
-			return nil, fmt.Errorf("unable to complete set: %v", err)
+		if m.Config.DB == "" {
+			return nil, fmt.Errorf("db name must be set when checking collection existence")
 		}
-		if !contains(collections, m.Config.Collection) {
-			return nil, fmt.Errorf("mongo db %v collection not found", m.Config.Collection)
+		db := m.Client.Database(m.Config.DB)
+		names, err := db.ListCollectionNames(ctx, bson.D{{Key: "name", Value: m.Config.Collection}})
+		if err != nil {
+			return nil, fmt.Errorf("unable to list collections: %w", err)
+		}
+		if !contains(names, m.Config.Collection) {
+			return nil, fmt.Errorf("mongo db %q collection %q not found", m.Config.DB, m.Config.Collection)
 		}
 	}
 
 	return nil, nil
+}
+
+func (m *Mongo) Close() error {
+	ctx, cancel := context.WithTimeout(context.Background(), m.Config.DialTimeout)
+	defer cancel()
+	return m.Client.Disconnect(ctx)
 }
 
 func contains(data []string, needle string) bool {
@@ -96,23 +136,23 @@ func contains(data []string, needle string) bool {
 
 func validateMongoConfig(cfg *MongoConfig) error {
 	if cfg == nil {
-		return fmt.Errorf("Main config cannot be nil")
+		return fmt.Errorf("main config cannot be nil")
 	}
 
 	if cfg.Auth == nil {
-		return fmt.Errorf("Auth config cannot be nil")
+		return fmt.Errorf("auth config cannot be nil")
 	}
 
 	if cfg.Auth.Url == "" {
-		return fmt.Errorf("Url string must be set in auth config")
+		return fmt.Errorf("url string must be set in auth config")
 	}
 
 	if _, err := mgo.ParseURL(cfg.Auth.Url); err != nil {
-		return fmt.Errorf("Unable to parse URL: %v", err)
+		return fmt.Errorf("unable to parse URL: %v", err)
 	}
 
 	if !cfg.Ping && cfg.Collection == "" {
-		return fmt.Errorf("At minimum, either cfg.Ping or cfg.Collection")
+		return fmt.Errorf("at minimum, either cfg.Ping or cfg.Collection")
 	}
 
 	if cfg.DialTimeout <= 0 {
@@ -120,4 +160,17 @@ func validateMongoConfig(cfg *MongoConfig) error {
 	}
 
 	return nil
+}
+
+func normalizeMongoURI(u string) string {
+	us := strings.TrimSpace(u)
+	if strings.HasPrefix(us, "mongodb://") || strings.HasPrefix(us, "mongodb+srv://") {
+		return us
+	}
+	// Accept "mongo://..." too, map it to mongodb://
+	if strings.HasPrefix(us, "mongo://") {
+		return "mongodb://" + strings.TrimPrefix(us, "mongo://")
+	}
+	// Bare host[:port]
+	return "mongodb://" + us
 }
