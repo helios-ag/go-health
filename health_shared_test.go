@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/InVisionApp/go-health/v2/fakes"
 	"github.com/InVisionApp/go-logger"
+	"github.com/helios-ag/go-health/v2/fakes"
 )
 
 func setupRunners(cfgs []*Config, logger log.Logger) (*Health, []*Config, error) {

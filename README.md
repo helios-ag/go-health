@@ -62,9 +62,9 @@ For _full_ examples, look through the [examples dir](examples/)
 
 ```golang
 import (
-	health "github.com/InVisionApp/go-health/v2"
-	"github.com/InVisionApp/go-health/v2/checkers"
-	"github.com/InVisionApp/go-health/v2/handlers"
+	health "github.com/helios-ag/go-health/v2"
+	"github.com/helios-ag/go-health/v2/checkers"
+	"github.com/helios-ag/go-health/v2/handlers"
 )
 
 // Create a new health instance
