@@ -78,7 +78,7 @@ func TestValidateMongoConfig(t *testing.T) {
 
 		err := validateMongoConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Url string must be set in auth config"))
+		Expect(err.Error()).To(ContainSubstring("url string must be set in auth config"))
 	})
 
 	t.Run("Should error if none of the check methods are enabled", func(t *testing.T) {
@@ -140,7 +140,7 @@ func TestMongoStatus(t *testing.T) {
 		_, err = checker.Status()
 
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("collection not found"))
+		Expect(err.Error()).To(ContainSubstring("collection \"go-check\" not found"))
 	})
 
 }
