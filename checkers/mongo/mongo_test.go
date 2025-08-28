@@ -34,7 +34,6 @@ func TestNewMongo(t *testing.T) {
 	t.Run("Bad config should error", func(t *testing.T) {
 		var cfg *MongoConfig
 		r, err := NewMongo(cfg)
-		defer r.Close()
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(ContainSubstring("unable to validate mongodb config"))
 		Expect(r).To(BeNil())
