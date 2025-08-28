@@ -77,16 +77,10 @@ func NewMongo(cfg *MongoConfig) (*Mongo, error) {
 		return nil, err
 	}
 
-	//defer func() {
-	//	if err = client.Disconnect(ctx); err != nil {
-	//		panic(err)
-	//	}
-	//}()
-
 	// Initial ping to ensure connectivity
 	if err := client.Ping(ctx, readpref.Primary()); err != nil {
 		_ = client.Disconnect(context.Background())
-		return nil, fmt.Errorf("unable to establish initial connection to mongodb: %w", err)
+		return nil, fmt.Errorf("no reachable servers: %w", err)
 	}
 	return &Mongo{
 		Config: cfg,

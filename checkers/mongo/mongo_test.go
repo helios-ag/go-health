@@ -49,10 +49,11 @@ func TestNewMongo(t *testing.T) {
 			DialTimeout: 20 * time.Millisecond,
 		}
 
-		r, err := NewMongo(cfg)
+		mongoInstance, err := NewMongo(cfg)
+		defer mongoInstance.Close()
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(ContainSubstring("no reachable servers"))
-		Expect(r).To(BeNil())
+		Expect(mongoInstance).To(BeNil())
 	})
 }
 
@@ -63,13 +64,13 @@ func TestValidateMongoConfig(t *testing.T) {
 		var cfg *MongoConfig
 		err := validateMongoConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Main config cannot be nil"))
+		Expect(err.Error()).To(ContainSubstring("main config cannot be nil"))
 	})
 
 	t.Run("Should error with nil auth config", func(t *testing.T) {
 		err := validateMongoConfig(&MongoConfig{})
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Auth config cannot be nil"))
+		Expect(err.Error()).To(ContainSubstring("auth config cannot be nil"))
 	})
 
 	t.Run("Auth config must have an addr set", func(t *testing.T) {
@@ -105,7 +106,6 @@ func TestValidateMongoConfig(t *testing.T) {
 		Expect(err).To(HaveOccurred())
 		Expect(err.Error()).To(ContainSubstring("Unable to parse URL"))
 	})
-
 }
 
 func TestMongoStatus(t *testing.T) {
@@ -130,8 +130,10 @@ func TestMongoStatus(t *testing.T) {
 	t.Run("Should error if collection not found(available)", func(t *testing.T) {
 		cfg := &MongoConfig{
 			Collection: "go-check",
+			DB:         "go-check",
 		}
 		checker, err := setupMongo(cfg)
+		defer checker.Close()
 		if err != nil {
 			t.Fatal(err)
 		}
