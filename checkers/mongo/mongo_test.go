@@ -90,7 +90,7 @@ func TestValidateMongoConfig(t *testing.T) {
 
 		err := validateMongoConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("At minimum, either cfg.Ping or cfg.Collection"))
+		Expect(err.Error()).To(ContainSubstring("at minimum, either cfg.Ping or cfg.Collection"))
 	})
 
 	t.Run("Should error if url has wrong format", func(t *testing.T) {
@@ -102,7 +102,7 @@ func TestValidateMongoConfig(t *testing.T) {
 
 		err := validateMongoConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Unable to parse URL"))
+		Expect(err.Error()).To(ContainSubstring("unable to parse URL"))
 	})
 }
 
