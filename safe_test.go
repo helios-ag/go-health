@@ -7,16 +7,12 @@ import (
 )
 
 func TestString(t *testing.T) {
-	RegisterTestingT(t)
-
 	t.Run("Happy path", func(t *testing.T) {
 		b := newBool()
 
-		// should be false by default
-		Expect(b.v).To(BeFalse())
-
-		// Mutex should be created
-		Expect(b.mu).ToNot(BeNil())
+		// default should be "false"
+		Expect(b.String()).To(Equal("false"))
+		Expect(b.val()).To(BeFalse())
 
 		b.setFalse()
 		Expect(b.String()).To(Equal("false"))
