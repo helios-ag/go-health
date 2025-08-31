@@ -1,11 +1,12 @@
 package redischk
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/redis/go-redis/v9"
 )
 
 const (
@@ -96,7 +97,7 @@ func NewRedis(cfg *RedisConfig) (*Redis, error) {
 		TLSConfig: cfg.Auth.TLS,
 	})
 
-	if _, err := c.Ping().Result(); err != nil {
+	if _, err := c.Ping(context.Background()).Result(); err != nil {
 		return nil, fmt.Errorf("unable to establish initial connection to redis: %v", err)
 	}
 
@@ -110,20 +111,20 @@ func NewRedis(cfg *RedisConfig) (*Redis, error) {
 // the "ICheckable" interface.
 func (r *Redis) Status() (interface{}, error) {
 	if r.Config.Ping {
-		if _, err := r.client.Ping().Result(); err != nil {
+		if _, err := r.client.Ping(context.Background()).Result(); err != nil {
 			return nil, fmt.Errorf("ping failed: %v", err)
 		}
 	}
 
 	if r.Config.Set != nil {
-		err := r.client.Set(r.Config.Set.Key, r.Config.Set.Value, r.Config.Set.Expiration).Err()
+		err := r.client.Set(context.Background(), r.Config.Set.Key, r.Config.Set.Value, r.Config.Set.Expiration).Err()
 		if err != nil {
 			return nil, fmt.Errorf("unable to complete set: %v", err)
 		}
 	}
 
 	if r.Config.Get != nil {
-		val, err := r.client.Get(r.Config.Get.Key).Result()
+		val, err := r.client.Get(context.Background(), r.Config.Get.Key).Result()
 		if err != nil {
 			if err == redis.Nil {
 				if !r.Config.Get.NoErrorMissingKey {
