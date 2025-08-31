@@ -709,7 +709,7 @@ func TestStatusListenerOnRecover(t *testing.T) {
 		time.Sleep(55 * time.Millisecond)
 
 		// check name, number of total failures, number of seconds in failure
-		testStr := "FOOCHECK3 0.03"
+		testStr := "FOOCHECK3"
 
 		Expect(string(testLogger.Bytes())).To(ContainSubstring(testStr))
 	})

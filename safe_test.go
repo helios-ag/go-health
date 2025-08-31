@@ -7,6 +7,7 @@ import (
 )
 
 func TestString(t *testing.T) {
+	RegisterTestingT(t)
 	t.Run("Happy path", func(t *testing.T) {
 		b := newBool()
 
@@ -19,6 +20,10 @@ func TestString(t *testing.T) {
 		Expect(b.val()).To(BeFalse())
 
 		b.setTrue()
+		Expect(b.String()).To(Equal("true"))
+		Expect(b.val()).To(BeTrue())
+
+		b.set(true)
 		Expect(b.String()).To(Equal("true"))
 		Expect(b.val()).To(BeTrue())
 	})
