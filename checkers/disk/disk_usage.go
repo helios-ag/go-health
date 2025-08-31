@@ -3,7 +3,7 @@ package diskchk
 import (
 	"fmt"
 
-	"github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/v4/disk"
 )
 
 // DiskUsageConfig is used for configuring the go-diskusage check.
