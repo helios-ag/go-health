@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -49,11 +48,11 @@ type HTTP struct {
 // NewHTTP creates a new HTTP checker that can be used for ".AddCheck(s)".
 func NewHTTP(cfg *HTTPConfig) (*HTTP, error) {
 	if cfg == nil {
-		return nil, fmt.Errorf("Passed in config cannot be nil")
+		return nil, fmt.Errorf("passed in config cannot be nil")
 	}
 
 	if err := cfg.prepare(); err != nil {
-		return nil, fmt.Errorf("Unable to prepare given config: %v", err)
+		return nil, fmt.Errorf("unable to prepare given config: %v", err)
 	}
 
 	return &HTTP{
@@ -72,19 +71,19 @@ func (h *HTTP) Status() (interface{}, error) {
 
 	// Check if StatusCode matches
 	if resp.StatusCode != h.Config.StatusCode {
-		return nil, fmt.Errorf("Received status code '%v' does not match expected status code '%v'",
+		return nil, fmt.Errorf("received status code '%v' does not match expected status code '%v'",
 			resp.StatusCode, h.Config.StatusCode)
 	}
 
 	// If Expect is set, verify if returned response contains expected data
 	if h.Config.Expect != "" {
-		data, err := ioutil.ReadAll(resp.Body)
+		data, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("Unable to read response body to perform content expectancy check: %v", err)
+			return nil, fmt.Errorf("unable to read response body to perform content expectancy check: %v", err)
 		}
 
 		if !strings.Contains(string(data), h.Config.Expect) {
-			return nil, fmt.Errorf("Received response body '%v' does not contain expected content '%v'",
+			return nil, fmt.Errorf("received response body '%v' does not contain expected content '%v'",
 				string(data), h.Config.Expect)
 		}
 	}
@@ -100,12 +99,12 @@ func (h *HTTP) do() (*http.Response, error) {
 
 	req, err := http.NewRequest(h.Config.Method, h.Config.URL.String(), payload)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to create new HTTP request for HTTPMonitor check: %v", err)
+		return nil, fmt.Errorf("unable to create new HTTP request for HTTPMonitor check: %v", err)
 	}
 
 	resp, err := h.Config.Client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("Ran into error while performing '%v' request: %v", h.Config.Method, err)
+		return nil, fmt.Errorf("ran into error while performing '%v' request: %v", h.Config.Method, err)
 	}
 
 	return resp, nil

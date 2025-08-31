@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"fmt"
+
 	. "github.com/onsi/gomega"
 )
 
@@ -31,7 +32,7 @@ func TestNewHTTP(t *testing.T) {
 		h, err := NewHTTP(nil)
 
 		Expect(h).To(BeNil())
-		Expect(err.Error()).To(ContainSubstring("Passed in config cannot be nil"))
+		Expect(err.Error()).To(ContainSubstring("passed in config cannot be nil"))
 	})
 
 	t.Run("Should error when prepare fails", func(t *testing.T) {
@@ -70,7 +71,7 @@ func TestDo(t *testing.T) {
 
 		res, err := h.do()
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Unable to create new HTTP request for HTTPMonitor check"))
+		Expect(err.Error()).To(ContainSubstring("unable to create new HTTP request for HTTPMonitor check"))
 		Expect(res).To(BeNil())
 	})
 }
@@ -280,7 +281,7 @@ func TestHTTPStatus(t *testing.T) {
 		data, err := checker.Status()
 
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Unable to read response body to perform content expectancy check"))
+		Expect(err.Error()).To(ContainSubstring("unable to read response body to perform content expectancy check"))
 		Expect(data).To(BeNil())
 	})
 }

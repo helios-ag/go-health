@@ -87,14 +87,14 @@ func (mc *Memcached) Status() (interface{}, error) {
 
 	if mc.Config.Ping {
 		if _, err := net.Dial("tcp", mc.Config.Url); err != nil {
-			return nil, fmt.Errorf("Ping failed: %v", err)
+			return nil, fmt.Errorf("ping failed: %v", err)
 		}
 	}
 
 	if mc.Config.Set != nil {
 		err := mc.wrapper.GetClient().Set(&memcache.Item{Key: mc.Config.Set.Key, Value: []byte(mc.Config.Set.Value), Expiration: mc.Config.Set.Expiration})
 		if err != nil {
-			return nil, fmt.Errorf("Unable to complete set: %v", err)
+			return nil, fmt.Errorf("unable to complete set: %v", err)
 		}
 	}
 
@@ -103,16 +103,16 @@ func (mc *Memcached) Status() (interface{}, error) {
 		if err != nil {
 			if err == memcache.ErrCacheMiss {
 				if !mc.Config.Get.NoErrorMissingKey {
-					return nil, fmt.Errorf("Unable to complete get: '%v' not found", mc.Config.Get.Key)
+					return nil, fmt.Errorf("unable to complete get: '%v' not found", mc.Config.Get.Key)
 				}
 			} else {
-				return nil, fmt.Errorf("Unable to complete get: %v", err)
+				return nil, fmt.Errorf("unable to complete get: %v", err)
 			}
 		}
 
 		if mc.Config.Get.Expect != nil {
 			if !bytes.Equal(mc.Config.Get.Expect, val.Value) {
-				return nil, fmt.Errorf("Unable to complete get: returned value '%v' does not match expected value '%v'",
+				return nil, fmt.Errorf("unable to complete get: returned value '%v' does not match expected value '%v'",
 					val, mc.Config.Get.Expect)
 			}
 		}
@@ -123,26 +123,26 @@ func (mc *Memcached) Status() (interface{}, error) {
 
 func validateMemcachedConfig(cfg *MemcachedConfig) error {
 	if cfg == nil {
-		return fmt.Errorf("Main config cannot be nil")
+		return fmt.Errorf("main config cannot be nil")
 	}
 
 	if cfg.Url == "" {
-		return fmt.Errorf("Url string must be set in config")
+		return fmt.Errorf("url string must be set in config")
 	}
 
 	if _, err := url.Parse(cfg.Url); err != nil {
-		return fmt.Errorf("Unable to parse URL: %v", err)
+		return fmt.Errorf("unable to parse URL: %v", err)
 	}
 
 	// At least one check method must be set
 	if !cfg.Ping && cfg.Set == nil && cfg.Get == nil {
-		return fmt.Errorf("At minimum, either cfg.Ping, cfg.Set or cfg.Get must be set")
+		return fmt.Errorf("at minimum, either cfg.Ping, cfg.Set or cfg.Get must be set")
 	}
 
 	// If .Set is set, verify that at minimum .Key is set
 	if cfg.Set != nil {
 		if cfg.Set.Key == "" {
-			return fmt.Errorf("If cfg.Set is used, cfg.Set.Key must be set")
+			return fmt.Errorf("if cfg.Set is used, cfg.Set.Key must be set")
 		}
 
 		if cfg.Set.Value == "" {
@@ -153,7 +153,7 @@ func validateMemcachedConfig(cfg *MemcachedConfig) error {
 	// If .Get is set, verify that at minimum .Key is set
 	if cfg.Get != nil {
 		if cfg.Get.Key == "" {
-			return fmt.Errorf("If cfg.Get is used, cfg.Get.Key must be set")
+			return fmt.Errorf("if cfg.Get is used, cfg.Get.Key must be set")
 		}
 	}
 

@@ -19,7 +19,7 @@ func TestNewMongo(t *testing.T) {
 
 	t.Run("Happy path", func(t *testing.T) {
 		preset := mongo.Preset()
-		container, err := gnomock.Start(preset)
+		container, _ := gnomock.Start(preset)
 		defer gnomock.Stop(container)
 		addr := container.DefaultAddress()
 		uri := fmt.Sprintf("mongodb://%s:%s@%s", "gnomock", "gnomick", addr)
@@ -114,10 +114,10 @@ func TestMongoStatus(t *testing.T) {
 			Ping: true,
 		}
 		checker, err := setupMongo(cfg)
-		defer checker.Close()
 		if err != nil {
 			t.Fatal(err)
 		}
+		defer checker.Close()
 
 		Expect(err).ToNot(HaveOccurred())
 
@@ -132,11 +132,11 @@ func TestMongoStatus(t *testing.T) {
 			DB:         "go-check",
 		}
 		checker, err := setupMongo(cfg)
-		defer checker.Close()
 		if err != nil {
 			t.Fatal(err)
 		}
-
+		defer checker.Close()
+		
 		_, err = checker.Status()
 
 		Expect(err).To(HaveOccurred())
