@@ -2,10 +2,10 @@ module github.com/helios-ag/go-health/v2
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
-	github.com/InVisionApp/go-logger v1.0.1
 	github.com/alicebob/miniredis v2.5.0+incompatible
 	github.com/bradfitz/gomemcache v0.0.0-20250403215159-8d39553ac7cf
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/helios-ag/go-logger v0.0.0-20250829050605-8f88a118511b
 	github.com/onsi/gomega v1.38.2
 	github.com/orlangure/gnomock v0.32.0
 	github.com/shirou/gopsutil/v4 v4.25.7
@@ -38,7 +38,6 @@ require (
 	github.com/moby/docker-image-spec v1.3.1 // indirect
 	github.com/moby/sys/sequential v0.6.0 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
-	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -69,6 +68,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-go 1.24.0
-
-toolchain go1.24.6
+go 1.24.6
