@@ -143,17 +143,16 @@ func parsePayload(b interface{}) (io.Reader, error) {
 		return nil, nil
 	}
 
-	switch b.(type) {
+	switch v := b.(type) {
 	case []byte:
-		return bytes.NewReader(b.([]byte)), nil
+		return bytes.NewReader(v), nil
 	case string:
-		return bytes.NewReader([]byte(b.(string))), nil
+		return strings.NewReader(v), nil
 	default:
-		jb, err := json.Marshal(b)
+		jb, err := json.Marshal(v)
 		if err != nil {
-			return nil, fmt.Errorf("failed to marshal json body: %v", err)
+			return nil, fmt.Errorf("failed to marshal json body: %w", err)
 		}
-
 		return bytes.NewReader(jb), nil
 	}
 }
