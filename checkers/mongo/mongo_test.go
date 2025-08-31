@@ -3,6 +3,7 @@ package mongochk
 import (
 	"context"
 	"fmt"
+	"log"
 	"testing"
 	"time"
 
@@ -20,6 +21,9 @@ func TestNewMongo(t *testing.T) {
 	t.Run("Happy path", func(t *testing.T) {
 		preset := mongo.Preset()
 		container, err := gnomock.Start(preset)
+		if err != nil {
+			t.Fatalf("failed to start gnomock mongo container: %v", err)
+		}
 		defer gnomock.Stop(container)
 		addr := container.DefaultAddress()
 		uri := fmt.Sprintf("mongodb://%s:%s@%s", "gnomock", "gnomick", addr)
@@ -114,10 +118,10 @@ func TestMongoStatus(t *testing.T) {
 			Ping: true,
 		}
 		checker, err := setupMongo(cfg)
-		defer checker.Close()
 		if err != nil {
 			t.Fatal(err)
 		}
+		defer checker.Close()
 
 		Expect(err).ToNot(HaveOccurred())
 
@@ -132,10 +136,10 @@ func TestMongoStatus(t *testing.T) {
 			DB:         "go-check",
 		}
 		checker, err := setupMongo(cfg)
-		defer checker.Close()
 		if err != nil {
 			t.Fatal(err)
 		}
+		defer checker.Close()
 
 		_, err = checker.Status()
 
@@ -148,6 +152,9 @@ func TestMongoStatus(t *testing.T) {
 func setupMongo(cfg *MongoConfig) (*Mongo, error) {
 	preset := mongo.Preset()
 	container, err := gnomock.Start(preset)
+	if err != nil {
+		log.Fatalf("failed to start gnomock mongo container: %v", err)
+	}
 	addr := container.DefaultAddress()
 	uri := fmt.Sprintf("mongodb://%s", addr)
 	clientOptions := mongooptions.Client().ApplyURI(uri)

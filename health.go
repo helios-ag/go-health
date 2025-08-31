@@ -17,16 +17,16 @@ import (
 
 var (
 	// ErrNoAddCfgWhenActive is returned when you attempt to add check(s) to an already active healthcheck instance
-	ErrNoAddCfgWhenActive = errors.New("Unable to add new check configuration(s) while healthcheck is active")
+	ErrNoAddCfgWhenActive = errors.New("unable to add new check configuration(s) while healthcheck is active")
 
 	// ErrAlreadyRunning is returned when you attempt to "h.Start()" an already running healthcheck
-	ErrAlreadyRunning = errors.New("Healthcheck is already running - nothing to start")
+	ErrAlreadyRunning = errors.New("healthcheck is already running - nothing to start")
 
 	// ErrAlreadyStopped is returned when you attempt to "h.Stop()" a non-running healthcheck instance
-	ErrAlreadyStopped = errors.New("Healthcheck is not running - nothing to stop")
+	ErrAlreadyStopped = errors.New("healthcheck is not running - nothing to stop")
 
 	// ErrEmptyConfigs is returned when you attempt to add an empty slice of configs via "h.AddChecks()"
-	ErrEmptyConfigs = errors.New("Configs appears to be empty - nothing to add")
+	ErrEmptyConfigs = errors.New("configs appears to be empty - nothing to add")
 )
 
 // The IHealth interface can be useful if you plan on replacing the actual health
@@ -355,7 +355,7 @@ func (h *Health) handleStatusListener(stateEntry *State) {
 		stateEntry.ContiguousFailures = prevState.ContiguousFailures + 1
 	} else if prevState.isFailure() {
 		// recovery, previous state was failure
-		failureSeconds := time.Now().Sub(prevState.TimeOfFirstFailure).Seconds()
+		failureSeconds := time.Since(prevState.TimeOfFirstFailure).Seconds()
 
 		if h.StatusListener != nil {
 			go h.StatusListener.HealthCheckRecovered(stateEntry, prevState.ContiguousFailures, failureSeconds)

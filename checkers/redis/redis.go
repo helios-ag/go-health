@@ -84,7 +84,7 @@ type Redis struct {
 func NewRedis(cfg *RedisConfig) (*Redis, error) {
 	// validate settings
 	if err := validateRedisConfig(cfg); err != nil {
-		return nil, fmt.Errorf("Unable to validate redis config: %v", err)
+		return nil, fmt.Errorf("unable to validate redis config: %v", err)
 	}
 
 	// try to connect
@@ -97,7 +97,7 @@ func NewRedis(cfg *RedisConfig) (*Redis, error) {
 	})
 
 	if _, err := c.Ping().Result(); err != nil {
-		return nil, fmt.Errorf("Unable to establish initial connection to redis: %v", err)
+		return nil, fmt.Errorf("unable to establish initial connection to redis: %v", err)
 	}
 
 	return &Redis{
@@ -111,14 +111,14 @@ func NewRedis(cfg *RedisConfig) (*Redis, error) {
 func (r *Redis) Status() (interface{}, error) {
 	if r.Config.Ping {
 		if _, err := r.client.Ping().Result(); err != nil {
-			return nil, fmt.Errorf("Ping failed: %v", err)
+			return nil, fmt.Errorf("ping failed: %v", err)
 		}
 	}
 
 	if r.Config.Set != nil {
 		err := r.client.Set(r.Config.Set.Key, r.Config.Set.Value, r.Config.Set.Expiration).Err()
 		if err != nil {
-			return nil, fmt.Errorf("Unable to complete set: %v", err)
+			return nil, fmt.Errorf("unable to complete set: %v", err)
 		}
 	}
 
@@ -127,16 +127,16 @@ func (r *Redis) Status() (interface{}, error) {
 		if err != nil {
 			if err == redis.Nil {
 				if !r.Config.Get.NoErrorMissingKey {
-					return nil, fmt.Errorf("Unable to complete get: '%v' not found", r.Config.Get.Key)
+					return nil, fmt.Errorf("unable to complete get: '%v' not found", r.Config.Get.Key)
 				}
 			} else {
-				return nil, fmt.Errorf("Unable to complete get: %v", err)
+				return nil, fmt.Errorf("unable to complete get: %v", err)
 			}
 		}
 
 		if r.Config.Get.Expect != "" {
 			if r.Config.Get.Expect != val {
-				return nil, fmt.Errorf("Unable to complete get: returned value '%v' does not match expected value '%v'",
+				return nil, fmt.Errorf("unable to complete get: returned value '%v' does not match expected value '%v'",
 					val, r.Config.Get.Expect)
 			}
 		}
@@ -147,26 +147,26 @@ func (r *Redis) Status() (interface{}, error) {
 
 func validateRedisConfig(cfg *RedisConfig) error {
 	if cfg == nil {
-		return fmt.Errorf("Main config cannot be nil")
+		return fmt.Errorf("main config cannot be nil")
 	}
 
 	if cfg.Auth == nil {
-		return fmt.Errorf("Auth config cannot be nil")
+		return fmt.Errorf("auth config cannot be nil")
 	}
 
 	if cfg.Auth.Addr == "" {
-		return fmt.Errorf("Addr string must be set in auth config")
+		return fmt.Errorf("addr string must be set in auth config")
 	}
 
 	// At least one check method must be set
 	if !cfg.Ping && cfg.Set == nil && cfg.Get == nil {
-		return fmt.Errorf("At minimum, either cfg.Ping, cfg.Set or cfg.Get must be set")
+		return fmt.Errorf("at minimum, either cfg.Ping, cfg.Set or cfg.Get must be set")
 	}
 
 	// If .Set is set, verify that at minimum .Key is set
 	if cfg.Set != nil {
 		if cfg.Set.Key == "" {
-			return fmt.Errorf("If cfg.Set is used, cfg.Set.Key must be set")
+			return fmt.Errorf("if cfg.Set is used, cfg.Set.Key must be set")
 		}
 
 		if cfg.Set.Value == "" {
@@ -177,7 +177,7 @@ func validateRedisConfig(cfg *RedisConfig) error {
 	// If .Get is set, verify that at minimum .Key is set
 	if cfg.Get != nil {
 		if cfg.Get.Key == "" {
-			return fmt.Errorf("If cfg.Get is used, cfg.Get.Key must be set")
+			return fmt.Errorf("if cfg.Get is used, cfg.Get.Key must be set")
 		}
 	}
 

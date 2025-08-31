@@ -53,7 +53,6 @@ func handleRequest(rw http.ResponseWriter, r *http.Request) {
 	}
 	logger.Print("👍")
 	rw.WriteHeader(http.StatusOK)
-	return
 }
 
 func main() {

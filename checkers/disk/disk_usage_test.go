@@ -27,14 +27,14 @@ func TestNewDiskUsage(t *testing.T) {
 		du, err := NewDiskUsage(nil)
 
 		Expect(du).To(BeNil())
-		Expect(err.Error()).To(ContainSubstring("Passed in config cannot be nil"))
+		Expect(err.Error()).To(ContainSubstring("passed in config cannot be nil"))
 	})
 
 	t.Run("Bad config should error", func(t *testing.T) {
 		du, err := NewDiskUsage(&DiskUsageConfig{})
 
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Unable to validate diskusage config"))
+		Expect(err.Error()).To(ContainSubstring("unable to validate diskusage config"))
 		Expect(du).To(BeNil())
 	})
 }
@@ -46,7 +46,7 @@ func TestValidateDiskUsageConfig(t *testing.T) {
 		var cfg *DiskUsageConfig
 		err := validateDiskUsageConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Main config cannot be nil"))
+		Expect(err.Error()).To(ContainSubstring("main config cannot be nil"))
 	})
 
 	t.Run("Config must have path set", func(t *testing.T) {
@@ -54,7 +54,7 @@ func TestValidateDiskUsageConfig(t *testing.T) {
 
 		err := validateDiskUsageConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Path can not be nil"))
+		Expect(err.Error()).To(ContainSubstring("path can not be nil"))
 	})
 
 	t.Run("Should error if warning threshold value set out of bounds", func(t *testing.T) {
@@ -66,7 +66,7 @@ func TestValidateDiskUsageConfig(t *testing.T) {
 
 		err := validateDiskUsageConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Invalid warning threshold value"))
+		Expect(err.Error()).To(ContainSubstring("invalid warning threshold value"))
 	})
 
 	t.Run("Should error if critical threshold value set out of bounds", func(t *testing.T) {
@@ -78,7 +78,7 @@ func TestValidateDiskUsageConfig(t *testing.T) {
 
 		err := validateDiskUsageConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Invalid critical threshold value"))
+		Expect(err.Error()).To(ContainSubstring("invalid critical threshold value"))
 	})
 
 }
@@ -100,7 +100,7 @@ func TestDiskUsageStatus(t *testing.T) {
 
 		_, err = du.Status()
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Error getting disk usage"))
+		Expect(err.Error()).To(ContainSubstring("error getting disk usage"))
 	})
 
 	t.Run("Should error when critical threshold reached", func(t *testing.T) {
@@ -117,7 +117,7 @@ func TestDiskUsageStatus(t *testing.T) {
 
 		_, err = du.Status()
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Critical: disk usage too high"))
+		Expect(err.Error()).To(ContainSubstring("critical: disk usage too high"))
 	})
 
 	t.Run("Should error when warning threshold reached", func(t *testing.T) {
@@ -133,7 +133,7 @@ func TestDiskUsageStatus(t *testing.T) {
 		}
 		_, err = du.Status()
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Warning: disk usage too high"))
+		Expect(err.Error()).To(ContainSubstring("warning: disk usage too high"))
 	})
 
 	t.Run("Shouldn't return error when everything is ok", func(t *testing.T) {

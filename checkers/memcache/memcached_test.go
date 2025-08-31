@@ -62,7 +62,7 @@ func TestValidateMemcachedConfig(t *testing.T) {
 		var cfg *MemcachedConfig
 		err := validateMemcachedConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Main config cannot be nil"))
+		Expect(err.Error()).To(ContainSubstring("main config cannot be nil"))
 	})
 
 	t.Run("Config must have an url set", func(t *testing.T) {
@@ -70,7 +70,7 @@ func TestValidateMemcachedConfig(t *testing.T) {
 
 		err := validateMemcachedConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Url string must be set in config"))
+		Expect(err.Error()).To(ContainSubstring("url string must be set in config"))
 	})
 
 	t.Run("Should error if none of the check methods are enabled", func(t *testing.T) {
@@ -80,7 +80,7 @@ func TestValidateMemcachedConfig(t *testing.T) {
 
 		err := validateMemcachedConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("At minimum, either cfg.Ping, cfg.Set or cfg.Get must be set"))
+		Expect(err.Error()).To(ContainSubstring("at minimum, either cfg.Ping, cfg.Set or cfg.Get must be set"))
 	})
 
 	t.Run("Should error if .Set is used but key is undefined", func(t *testing.T) {
@@ -91,7 +91,7 @@ func TestValidateMemcachedConfig(t *testing.T) {
 
 		err := validateMemcachedConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("If cfg.Set is used, cfg.Set.Key must be set"))
+		Expect(err.Error()).To(ContainSubstring("if cfg.Set is used, cfg.Set.Key must be set"))
 	})
 
 	t.Run("Should error if .Get is used but key is undefined", func(t *testing.T) {
@@ -102,7 +102,7 @@ func TestValidateMemcachedConfig(t *testing.T) {
 
 		err := validateMemcachedConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("If cfg.Get is used, cfg.Get.Key must be set"))
+		Expect(err.Error()).To(ContainSubstring("if cfg.Get is used, cfg.Get.Key must be set"))
 	})
 
 	t.Run("Should error if url has wrong format", func(t *testing.T) {
@@ -112,7 +112,7 @@ func TestValidateMemcachedConfig(t *testing.T) {
 
 		err := validateMemcachedConfig(cfg)
 		Expect(err).To(HaveOccurred())
-		Expect(err.Error()).To(ContainSubstring("Unable to parse URL"))
+		Expect(err.Error()).To(ContainSubstring("unable to parse URL"))
 	})
 
 	t.Run("Shouldn't error with properly set config", func(t *testing.T) {
@@ -144,7 +144,7 @@ func TestMemcachedStatus(t *testing.T) {
 		Expect(err).To(HaveOccurred())
 
 		_, err = checker.Status()
-		Expect(err.Error()).To(ContainSubstring("Ping failed"))
+		Expect(err.Error()).To(ContainSubstring("ping failed"))
 	})
 
 	t.Run("When set is enabled", func(t *testing.T) {
@@ -246,7 +246,7 @@ func TestMemcachedStatus(t *testing.T) {
 			_, err = checker.Status()
 			Expect(err).To(HaveOccurred())
 
-			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("Unable to complete get: '%v' not found", cfg.Get.Key)))
+			Expect(err.Error()).To(ContainSubstring(fmt.Sprintf("unable to complete get: '%v' not found", cfg.Get.Key)))
 		})
 
 		t.Run("should NOT error if key is missing and NoErrorMissingKey IS set", func(t *testing.T) {

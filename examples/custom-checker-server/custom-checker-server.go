@@ -45,7 +45,7 @@ func main() {
 func (c *customCheck) Status() (interface{}, error) {
 	// perform some sort of check
 	if false {
-		return nil, fmt.Errorf("Something major just broke")
+		return nil, fmt.Errorf("something major just broke")
 	}
 
 	// You can return additional information pertaining to the check as long
