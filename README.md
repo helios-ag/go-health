@@ -4,7 +4,7 @@ Fork of [InVisionApp/go-health](https://github.com/InVisionApp/go-health)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/36e8461d0fda47f499bf7cc6801e9603)](https://app.codacy.com/gh/helios-ag/go-health/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Go](https://github.com/helios-ag/go-health/actions/workflows/tests.yml/badge.svg)](https://github.com/helios-ag/go-health/actions/workflows/tests.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/helios-ag/go-health)](https://goreportcard.com/report/github.com/helios-ag/go-health)
-[![Godocs](https://img.shields.io/badge/golang-documentation-blue.svg)](https://godoc.org/github.com/helios-ag/go-health)
+[![Godocs](https://img.shields.io/badge/golang-documentation-blue.svg)](https://pkg.go.dev/github.com/helios-ag/go-health/v2)
 
 <img align="right" src="images/go-health.svg" width="200">
 
